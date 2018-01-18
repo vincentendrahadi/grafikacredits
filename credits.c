@@ -16,6 +16,12 @@ http://cep.xor.aps.anl.gov/software/qt4-x11-4.2.2/qtopiacore-testingframebuffer.
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
+typedef struct Characters {
+    char content;
+    short red, green, blue;
+    short i,j;
+} Character;
+
 // global variable
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
@@ -23,6 +29,64 @@ struct fb_fix_screeninfo finfo;
 short alphabets[26][28][20];
 short numbers[10][28][20];
 short symbols[3][28][20];
+Character credit[255];
+
+void loadCreditContent() {
+    FILE *fp;
+    int c = -1;
+    int row = 0;
+    int red = 0, green = 240, blue = 200;
+    fp = fopen("credit_content.txt", "r");
+    while(fscanf(fp, "%c", &x) != EOF) {
+        if (x != '\n') {
+            ++c;
+            credit[c].content = x;
+            credit[c].red = red;
+            credit[c].green = green;
+            credit[c].blue = blue;
+            credit[c].i = 0;
+            credit[c].j = 0;
+            i += 22;
+        } else {
+            i = 0;
+            j += 56;
+            ++row;
+            if (row == 1) {
+                red = 255;
+                green = 255;
+                blue = 255;
+            } else if (row == 2) {
+                red = 160;
+                green = 200;
+                blue = 220;
+            } else if (row == 3) {
+                red = 240;
+                green = 120;
+                blue = 0;
+            } else if (row == 4) {
+                red = 0;
+                green = 240;
+                blue = 30;
+            } else if (row == 5) {
+                red = 0;
+                green = 255;
+                blue = 0;
+            } else if (row == 6) {
+                red = 160;
+                green = 0;
+                blue = 0;
+            } else if (row == 7) {
+                red = 30;
+                green = 60;
+                blue = 240;
+            } else {
+                red = 180;
+                green = 160;
+                blue = 255;
+            }
+        }
+    }
+}
 
 void loadCharacters() {
     FILE *fp;
@@ -121,44 +185,14 @@ int main()
     }
     // printf("The framebuffer device was mapped to memory successfully.\n");
 
+    // load credit content from txt
+    loadCreditContent();
+
     // load characters format from txt
     loadCharacters();
 
     x = 100; y = 100;       // Where we are going to put the pixel
 
-    // Figure out where in memory to put the pixel
-    // for (y = 100; y < 300; y++)
-    //     for (x = 100; x < 300; x++) {
-
-    //         location = (x+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
-    //                    (y+vinfo.yoffset) * finfo.line_length;
-
-    //         if (vinfo.bits_per_pixel == 32) {
-    //             *(fbp + location) = 100;        // Some blue
-    //             *(fbp + location + 1) = 15+(x-100)/2;     // A little green
-    //             *(fbp + location + 2) = 200-(y-100)/5;    // A lot of red
-    //             *(fbp + location + 3) = 0;      // No transparency
-    //     //location += 4;
-    //         } else  { //assume 16bpp
-    //             int b = 10;
-    //             int g = (x-100)/6;     // A little green
-    //             int r = 31-(y-100)/16;    // A lot of red
-    //             unsigned short int t = r<<11 | g << 5 | b;
-    //             *((unsigned short int*)(fbp + location)) = t;
-    //         }
-
-    //     }
-
-    for (y = 0; y < 760; y++) {
-        for (x = 0; x < 1366; x++) {
-            printPixel(y, x, 0, 255, 255, 0);
-        }
-    }
-    printCharacter(100, 0, 0, 255, 255, 255, 'A');
-    // for (y = 0; y < 500; y++)
-    //     for (x = 0; x < 500; x++) {
-    //         printPixel(x, y, 255, 255, 255, 0);
-    //     }
     munmap(fbp, screensize);
     close(fbfd);
     while (1) {
