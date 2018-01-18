@@ -1,12 +1,3 @@
-/*
-To test that the Linux framebuffer is set up correctly, and that the device permissions
-are correct, use the program below which opens the frame buffer and draws a gradient-
-filled red square:
-retrieved from:
-Testing the Linux Framebuffer for Qtopia Core (qt4-x11-4.2.2)
-http://cep.xor.aps.anl.gov/software/qt4-x11-4.2.2/qtopiacore-testingframebuffer.html
-*/
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -94,9 +85,16 @@ void loadCharacters() {
     for (char c = 'A'; c <= 'A'; c++) {
         char x;
         int i = 0, j = 0;
-        char filename[2];
-        filename[0] = c;
-        filename[1] = '\0';
+        char filename[9];
+        filename[0] = 'a';
+        filename[1] = 's';
+        filename[2] = 's';
+        filename[3] = 'e';
+        filename[4] = 't';
+        filename[5] = 's';
+        filename[6] = '/';
+        filename[7] = c;
+        filename[8] = '\0';
         fp = fopen(filename, "r");
         while (fscanf(fp, "%c", &x) != EOF) {
             if (x == 'X') {
@@ -131,15 +129,12 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
     int i, j;
     for (i = 0; i < 28; i++) {
         for (j = 0; j < 20; j++) {
-            // printf("%d", content - 'A');
-            // printf("%d", alphabets[content - 'A'][i][j]);
             if (alphabets[content - 'A'][i][j] == 1) {
                 printPixel(i_start + i, j_start + j, 0, 255, 255, 255);
             } else {
                 printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
             }
         }
-        // printf("\n");
     }
 }
 
@@ -158,7 +153,6 @@ int main()
         perror("Error: cannot open framebuffer device");
         exit(1);
     }
-    // printf("The framebuffer device was opened successfully.\n");
 
     // Get fixed screen information
     if (ioctl(fbfd, FBIOGET_FSCREENINFO, &finfo) == -1) {
@@ -172,8 +166,6 @@ int main()
         exit(3);
     }
 
-    // printf("%dx%d, %dbpp\n", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
-
     // Figure out the size of the screen in bytes
     screensize = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
 
@@ -183,7 +175,6 @@ int main()
         perror("Error: failed to map framebuffer device to memory");
         exit(4);
     }
-    // printf("The framebuffer device was mapped to memory successfully.\n");
 
     // load credit content from txt
     loadCreditContent();
@@ -192,6 +183,12 @@ int main()
     loadCharacters();
 
     x = 100; y = 100;       // Where we are going to put the pixel
+    for (y = 0; y < 760; y++) {
+        for (x = 0; x < 1366; x++) {
+            printPixel(y, x, 0, 255, 255, 0);
+        }
+    }
+    printCharacter(100, 0, 0, 255, 255, 255, 'A');
 
     munmap(fbp, screensize);
     close(fbfd);
