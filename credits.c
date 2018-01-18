@@ -24,6 +24,8 @@ Character credit[255];
 
 void loadCreditContent() {
     FILE *fp;
+    char x;
+    int i = 0, j = 0;
     int c = -1;
     int row = 0;
     int red = 0, green = 240, blue = 200;
@@ -35,12 +37,12 @@ void loadCreditContent() {
             credit[c].red = red;
             credit[c].green = green;
             credit[c].blue = blue;
-            credit[c].i = 0;
-            credit[c].j = 0;
-            i += 22;
+            credit[c].i = i;
+            credit[c].j = j;
+            j += 22;
         } else {
-            i = 0;
-            j += 56;
+            j = 0;
+            i += 56;
             ++row;
             if (row == 1) {
                 red = 255;
@@ -82,7 +84,7 @@ void loadCreditContent() {
 void loadCharacters() {
     FILE *fp;
 
-    for (char c = 'A'; c <= 'A'; c++) {
+    for (char c = 'A'; c <= 'P'; c++) {
         char x;
         int i = 0, j = 0;
         char filename[9];
@@ -130,7 +132,7 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
     for (i = 0; i < 28; i++) {
         for (j = 0; j < 20; j++) {
             if (alphabets[content - 'A'][i][j] == 1) {
-                printPixel(i_start + i, j_start + j, 0, 255, 255, 255);
+                printPixel(i_start + i, j_start + j, 0, blue, green, red);
             } else {
                 printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
             }
@@ -185,9 +187,16 @@ int main()
     x = 100; y = 100;       // Where we are going to put the pixel
     for (y = 0; y < 760; y++) {
         for (x = 0; x < 1366; x++) {
-            printPixel(y, x, 0, 255, 255, 0);
+            printPixel(y, x, 0, 0, 0, 0);
         }
     }
+
+    for(int i = 0; i < 8; i++) {
+        printCharacter(credit[i].i, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
+    }
+    // for (char c = 'A', c <= 'M'; c++) {
+
+    // }
     printCharacter(100, 0, 0, 255, 255, 255, 'A');
 
     munmap(fbp, screensize);
