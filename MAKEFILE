@@ -1,0 +1,3 @@
+all : clear
+	g++ -o credit credits.c
+	sudo ./credit
