@@ -84,7 +84,7 @@ void loadCreditContent() {
 void loadCharacters() {
     FILE *fp;
 
-    for (char c = 'A'; c <= 'P'; c++) {
+    for (char c = 'A'; c <= 'Z'; c++) {
         char x;
         int i = 0, j = 0;
         char filename[9];
@@ -111,6 +111,77 @@ void loadCharacters() {
         }
         fclose(fp);
     }
+
+    for (char c = '0'; c <= '9'; c++) {
+        char x;
+        int i = 0, j = 0;
+        char filename[9];
+        filename[0] = 'a';
+        filename[1] = 's';
+        filename[2] = 's';
+        filename[3] = 'e';
+        filename[4] = 't';
+        filename[5] = 's';
+        filename[6] = '/';
+        filename[7] = c;
+        filename[8] = '\0';
+        fp = fopen(filename, "r");
+        while (fscanf(fp, "%c", &x) != EOF) {
+            if (x == 'X') {
+                numbers[c - '0'][i][j] = 1;
+            } else if (x == '\n') {
+                i++;
+                j = -1;
+            } else {
+                numbers[c - '0'][i][j] = 0;
+            }
+            j++;
+        }
+        fclose(fp);
+    }
+
+    char x;
+    int i = 0, j = 0;
+    char filename[9];
+    filename[0] = 'a';
+    filename[1] = 's';
+    filename[2] = 's';
+    filename[3] = 'e';
+    filename[4] = 't';
+    filename[5] = 's';
+    filename[6] = '/';
+    filename[7] = ':';
+    filename[8] = '\0';
+    fp = fopen(filename, "r");
+    while (fscanf(fp, "%c", &x) != EOF) {
+        if (x == 'X') {
+            symbols[0][i][j] = 1;
+        } else if (x == '\n') {
+            i++;
+            j = -1;
+        } else {
+            symbols[0][i][j] = 0;
+        }
+        j++;
+    }
+    fclose(fp);
+
+    i = 0;
+    j = 0;
+    filename[7] = '-';
+    fp = fopen(filename, "r");
+    while (fscanf(fp, "%c", &x) != EOF) {
+        if (x == 'X') {
+            symbols[1][i][j] = 1;
+        } else if (x == '\n') {
+            i++;
+            j = -1;
+        } else {
+            symbols[1][i][j] = 0;
+        }
+        j++;
+    }
+    fclose(fp);       
 }
 
 void printPixel(int i, int j, int opacity, int blue, int green, int red) {
@@ -131,12 +202,34 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
     int i, j;
     for (i = 0; i < 28; i++) {
         for (j = 0; j < 20; j++) {
-            if (alphabets[content - 'A'][i][j] == 1) {
-                printPixel(i_start + i, j_start + j, 0, blue, green, red);
-            } else {
+            if (content >= 'A' && content <= 'Z') {
+                if (alphabets[content - 'A'][i][j] == 1) {
+                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
+                } else {
+                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
+                }    
+            } else if (content >= '0' && content <= '9') {
+                if (numbers[content - '0'][i][j] == 1) {
+                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
+                } else {
+                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
+                }
+            } else if (content == ' ') {
                 printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
+            } else if (content == ':') {
+                if (symbols[0][i][j] == 1) {
+                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
+                } else {
+                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
+                }
+            } else if (content == '-') {
+                if (symbols[1][i][j] == 1) {
+                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
+                } else {
+                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
+                }
             }
-        }
+         }
     }
 }
 
@@ -191,7 +284,7 @@ int main()
         }
     }
 
-    for(int i = 0; i < 8; i++) {
+    for(int i = 0; i < 229; i++) {
         printCharacter(credit[i].i, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
     }
     // for (char c = 'A', c <= 'M'; c++) {
