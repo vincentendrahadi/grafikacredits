@@ -7,6 +7,12 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 
+typedef struct Characters {
+    char content;
+    short red, green, blue;
+    short i,j;
+} Character;
+
 // global variable
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
@@ -14,6 +20,64 @@ struct fb_fix_screeninfo finfo;
 short alphabets[26][28][20];
 short numbers[10][28][20];
 short symbols[3][28][20];
+Character credit[255];
+
+void loadCreditContent() {
+    FILE *fp;
+    int c = -1;
+    int row = 0;
+    int red = 0, green = 240, blue = 200;
+    fp = fopen("credit_content.txt", "r");
+    while(fscanf(fp, "%c", &x) != EOF) {
+        if (x != '\n') {
+            ++c;
+            credit[c].content = x;
+            credit[c].red = red;
+            credit[c].green = green;
+            credit[c].blue = blue;
+            credit[c].i = 0;
+            credit[c].j = 0;
+            i += 22;
+        } else {
+            i = 0;
+            j += 56;
+            ++row;
+            if (row == 1) {
+                red = 255;
+                green = 255;
+                blue = 255;
+            } else if (row == 2) {
+                red = 160;
+                green = 200;
+                blue = 220;
+            } else if (row == 3) {
+                red = 240;
+                green = 120;
+                blue = 0;
+            } else if (row == 4) {
+                red = 0;
+                green = 240;
+                blue = 30;
+            } else if (row == 5) {
+                red = 0;
+                green = 255;
+                blue = 0;
+            } else if (row == 6) {
+                red = 160;
+                green = 0;
+                blue = 0;
+            } else if (row == 7) {
+                red = 30;
+                green = 60;
+                blue = 240;
+            } else {
+                red = 180;
+                green = 160;
+                blue = 255;
+            }
+        }
+    }
+}
 
 void loadCharacters() {
     FILE *fp;
@@ -112,9 +176,13 @@ int main()
         exit(4);
     }
 
+    // load credit content from txt
+    loadCreditContent();
+
     // load characters format from txt
     loadCharacters();
 
+    x = 100; y = 100;       // Where we are going to put the pixel
     for (y = 0; y < 760; y++) {
         for (x = 0; x < 1366; x++) {
             printPixel(y, x, 0, 255, 255, 0);
