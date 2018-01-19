@@ -22,11 +22,11 @@ short numbers[10][28][20];
 short symbols[3][28][20];
 Character credit[255];
 
-void loadCreditContent() {
+void loadCreditContent(int i_start, int j_start) {
     FILE *fp;
     char x;
-    int i = 0, j = 0;
     int c = -1;
+    int i = i_start,j= j_start;
     int row = 0;
     int red = 0, green = 240, blue = 200;
     fp = fopen("credit_content.txt", "r");
@@ -41,7 +41,7 @@ void loadCreditContent() {
             credit[c].j = j;
             j += 22;
         } else {
-            j = 0;
+            j = j_start;
             i += 56;
             ++row;
             if (row == 1) {
@@ -181,7 +181,7 @@ void loadCharacters() {
         }
         j++;
     }
-    fclose(fp);       
+    fclose(fp);
 }
 
 void printPixel(int i, int j, int opacity, int blue, int green, int red) {
@@ -207,7 +207,7 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
                     printPixel(i_start + i, j_start + j, 0, blue, green, red);
                 } else {
                     printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
-                }    
+                }
             } else if (content >= '0' && content <= '9') {
                 if (numbers[content - '0'][i][j] == 1) {
                     printPixel(i_start + i, j_start + j, 0, blue, green, red);
@@ -240,6 +240,7 @@ int main()
     // struct fb_fix_screeninfo finfo;
     long int screensize = 0;
     int x = 0, y = 0;
+    int i_start, j_start;
     long int location = 0;
 
     // Open the file for reading and writing
@@ -270,27 +271,26 @@ int main()
         perror("Error: failed to map framebuffer device to memory");
         exit(4);
     }
-
+    i_start = 800;
+    j_start = 400;
     // load credit content from txt
-    loadCreditContent();
+    loadCreditContent(i_start,j_start);
 
     // load characters format from txt
     loadCharacters();
 
-    x = 100; y = 100;       // Where we are going to put the pixel
-    for (y = 0; y < 760; y++) {
-        for (x = 0; x < 1366; x++) {
-            printPixel(y, x, 0, 0, 0, 0);
-        }
-    }
+    for(long int a = 0 ; a < 999999999; a++ ) {
+      for (y = 0; y < 760; y++) {
+          for (x = 0; x < 1366; x++) {
+              printPixel(y, x, 0, 0, 0, 0);
+          }
+      }
 
-    for(int i = 0; i < 229; i++) {
-        printCharacter(credit[i].i, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
+      for(int i = 0; i < 232; i++) {
+          printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue-a, credit[i].green, credit[i].red, credit[i].content);
+      }
+      usleep(1500);
     }
-    // for (char c = 'A', c <= 'M'; c++) {
-
-    // }
-    printCharacter(100, 0, 0, 255, 255, 255, 'A');
 
     munmap(fbp, screensize);
     close(fbfd);
