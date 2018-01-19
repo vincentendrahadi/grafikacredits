@@ -42,7 +42,7 @@ void loadCreditContent(int i_start, int j_start) {
             j += 22;
         } else {
             j = j_start;
-            i += 56;
+            i += 112;
             ++row;
             if (row == 1) {
                 red = 255;
@@ -57,9 +57,9 @@ void loadCreditContent(int i_start, int j_start) {
                 green = 120;
                 blue = 0;
             } else if (row == 4) {
-                red = 0;
-                green = 240;
-                blue = 30;
+                red = 250;
+                green = 0;
+                blue = 200;
             } else if (row == 5) {
                 red = 0;
                 green = 255;
@@ -287,7 +287,7 @@ int main()
       }
 
       for(int i = 0; i < 232; i++) {
-          printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue-a, credit[i].green, credit[i].red, credit[i].content);
+          printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
       }
       usleep(1500);
     }
