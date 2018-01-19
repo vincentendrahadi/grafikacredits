@@ -186,7 +186,7 @@ void loadCharacters() {
 
 void printPixel(int i, int j, int opacity, int blue, int green, int red) {
     int location;
-    if (j < 0 || j >= 1366 || i < 0 || i >= 768) {
+    if (j < 0 || j >= 1366 || i < 0 || i >= 760) {
         // out of bound, no need to print
     } else {
         location = (j+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
