@@ -13,13 +13,18 @@ typedef struct Characters {
     short i,j;
 } Character;
 
+typedef struct CharacterData {
+	int points[16][2];
+	int strokes;
+} CharacterData;
+
 // global variable
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
-short alphabets[26][28][20];
-short numbers[10][28][20];
-short symbols[3][28][20];
+CharacterData alphabets[26];
+CharacterData numbers[10];
+CharacterData symbols[3];
 Character credit[255];
 
 void loadCreditContent(int i_start, int j_start) {
@@ -85,8 +90,8 @@ void loadCharacters() {
     FILE *fp;
 
     for (char c = 'A'; c <= 'Z'; c++) {
-        char x;
-        int i = 0, j = 0;
+        short x;
+        int i = 0;
         char filename[9];
         filename[0] = 'a';
         filename[1] = 's';
@@ -98,23 +103,17 @@ void loadCharacters() {
         filename[7] = c;
         filename[8] = '\0';
         fp = fopen(filename, "r");
-        while (fscanf(fp, "%c", &x) != EOF) {
-            if (x == 'X') {
-                alphabets[c - 'A'][i][j] = 1;
-            } else if (x == '\n') {
-                i++;
-                j = -1;
-            } else {
-                alphabets[c - 'A'][i][j] = 0;
-            }
-            j++;
+        while (fscanf(fp, " %hd ", &x) != EOF) {
+            alphabets[c-'A'].points[i/2][i%2] = x;
+            i++;
         }
+        alphabets[c-'A'].strokes = i/2;
         fclose(fp);
     }
 
     for (char c = '0'; c <= '9'; c++) {
-        char x;
-        int i = 0, j = 0;
+        short x;
+        int i = 0;
         char filename[9];
         filename[0] = 'a';
         filename[1] = 's';
@@ -126,22 +125,16 @@ void loadCharacters() {
         filename[7] = c;
         filename[8] = '\0';
         fp = fopen(filename, "r");
-        while (fscanf(fp, "%c", &x) != EOF) {
-            if (x == 'X') {
-                numbers[c - '0'][i][j] = 1;
-            } else if (x == '\n') {
-                i++;
-                j = -1;
-            } else {
-                numbers[c - '0'][i][j] = 0;
-            }
-            j++;
+        while (fscanf(fp, " %hd ", &x) != EOF) {
+            numbers[c-'0'].points[i/2][i%2] = x;
+            i++;
         }
+        numbers[c-'A'].strokes = i/2;
         fclose(fp);
     }
 
-    char x;
-    int i = 0, j = 0;
+    short x;
+    int i = 0;
     char filename[9];
     filename[0] = 'a';
     filename[1] = 's';
@@ -153,34 +146,21 @@ void loadCharacters() {
     filename[7] = ':';
     filename[8] = '\0';
     fp = fopen(filename, "r");
-    while (fscanf(fp, "%c", &x) != EOF) {
-        if (x == 'X') {
-            symbols[0][i][j] = 1;
-        } else if (x == '\n') {
-            i++;
-            j = -1;
-        } else {
-            symbols[0][i][j] = 0;
-        }
-        j++;
+    while (fscanf(fp, " %hd ", &x) != EOF) {
+        symbols[0].points[i/2][i%2] = x;
+        i++;
     }
+    symbols[0].strokes = i/2;
     fclose(fp);
 
     i = 0;
-    j = 0;
     filename[7] = '-';
     fp = fopen(filename, "r");
-    while (fscanf(fp, "%c", &x) != EOF) {
-        if (x == 'X') {
-            symbols[1][i][j] = 1;
-        } else if (x == '\n') {
-            i++;
-            j = -1;
-        } else {
-            symbols[1][i][j] = 0;
-        }
-        j++;
+    while (fscanf(fp, " %hd ", &x) != EOF) {
+        symbols[1].points[i/2][i%2] = x;
+        i++;
     }
+    symbols[1].strokes = i/2;
     fclose(fp);
 }
 
@@ -198,38 +178,65 @@ void printPixel(int i, int j, int opacity, int blue, int green, int red) {
     }
 }
 
+void printLine(int i_start, int j_start, int x0, int y0, int x1, int y1, int blue, int green, int red) {
+ 	int dx, dy, p, x, y;
+ 
+    dx=x1-x0;
+    dy=y1-y0;
+ 
+    x=x0;
+    y=y0;
+ 
+    p=2*dy-dx;
+ 
+    while(x<x1)
+    {
+        printPixel(i_start + y1, j_start + x1, 0, blue, green, red);
+        if(p>=0)
+        {
+            y=y+1;
+            p=p+2*dy-2*dx;
+        }
+        else
+        {
+            p=p+2*dy;
+        }
+        x=x+1;
+    }
+}
+
 void printCharacter(int i_start, int j_start, int opacity, int blue, int green, int red, char content) {
-    int i, j;
-    for (i = 0; i < 28; i++) {
-        for (j = 0; j < 20; j++) {
-            if (content >= 'A' && content <= 'Z') {
-                if (alphabets[content - 'A'][i][j] == 1) {
-                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
-                } else {
-                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
-                }
-            } else if (content >= '0' && content <= '9') {
-                if (numbers[content - '0'][i][j] == 1) {
-                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
-                } else {
-                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
-                }
-            } else if (content == ' ') {
-                printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
-            } else if (content == ':') {
-                if (symbols[0][i][j] == 1) {
-                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
-                } else {
-                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
-                }
-            } else if (content == '-') {
-                if (symbols[1][i][j] == 1) {
-                    printPixel(i_start + i, j_start + j, 0, blue, green, red);
-                } else {
-                    printPixel(i_start + i, j_start + j, 0, 0, 0, 0);
-                }
-            }
-         }
+    int i;
+    if (content >= 'A' && content <= 'Z') {
+    	for (i = 0; i < alphabets[content-'A'].strokes; i++) {
+    		printLine(i_start, j_start, alphabets[content - 'A'].points[i * 2][0], alphabets[content - 'A'].points[i * 2][1], alphabets[content - 'A'].points[i*2 + 1][0], 
+    			alphabets[content - 'A'].points[i*2 + 1][1], blue, green, red);
+    		printLine(i_start + 1, j_start + 1, alphabets[content - 'A'].points[i * 2][0], alphabets[content - 'A'].points[i * 2][1], alphabets[content - 'A'].points[i*2 + 1][0], 
+    			alphabets[content - 'A'].points[i*2 + 1][1], blue, green, red);
+    	}
+    } else if (content >= '0' && content <= '9') {
+    	for (i = 0; i < numbers[content - '0'].strokes; i++) {
+    		printLine(i_start, j_start, numbers[content-'0'].points[i * 2][0], numbers[content - '0'].points[i * 2][1], numbers[content - '0'].points[i*2 + 1][0], 
+    			numbers[content - '0'].points[i*2 + 1][1], blue, green, red);
+    		printLine(i_start + 1, j_start + 1, numbers[content-'0'].points[i * 2][0], numbers[content - '0'].points[i * 2][1], numbers[content - '0'].points[i*2 + 1][0], 
+    			numbers[content - '0'].points[i*2 + 1][1], blue, green, red);
+    	}
+    } else if (content == ' ') {
+    	printPixel(i_start, j_start, 0, 0, 0, 0);
+    } else if (content == ':') {
+    	for (i = 0; i < symbols[0].strokes; i++) {
+    		printLine(i_start, j_start, symbols[0].points[i * 2][0], symbols[0].points[i * 2][1], symbols[0].points[i*2 + 1][0], symbols[0].points[i*2 + 1][1], 
+    			blue, green, red);
+    		printLine(i_start + 1, j_start + 1, symbols[0].points[i * 2][0], symbols[0].points[i * 2][1], symbols[0].points[i*2 + 1][0], symbols[0].points[i*2 + 1][1], 
+    			blue, green, red);
+    	}
+    } else if (content == '-') {
+    	for (i = 0; i < symbols[1].strokes; i++) {
+    		printLine(i_start, j_start, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1], 
+    			blue, green, red);
+    		printLine(i_start + 1, j_start + 1, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1], 
+    			blue, green, red);
+    	}
     }
 }
 
@@ -277,21 +284,33 @@ int main()
     loadCreditContent(i_start,j_start);
 
     // load characters format from txt
-    loadCharacters();
+    // loadCharacters();
 
-    for(long int a = 0 ; a < 999999999; a++ ) {
-      for (y = 0; y < 760; y++) {
-          for (x = 0; x < 1366; x++) {
-              printPixel(y, x, 0, 0, 0, 0);
-          }
-      }
+    // for(long int a = 0 ; a < 999999999; a++ ) {
+    //   for (y = 0; y < 760; y++) {
+    //       for (x = 0; x < 1366; x++) {
+    //           printPixel(y, x, 0, 0, 0, 0);
+    //       }
+    //   }
 
-      for(int i = 0; i < 232; i++) {
-          printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
-      }
-      usleep(1500);
-    }
+    //   for(int i = 0; i < 232; i++) {
+    //       printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
+    //   }
+    //   usleep(1500);
+    // }
 
+    // debugging purposes
+    alphabets[0].strokes = 2;
+    alphabets[0].points[0][0] = 1;
+    alphabets[0].points[0][1] = 1;
+    alphabets[0].points[1][0] = 100;
+    alphabets[0].points[1][1] = 100;
+    alphabets[0].points[2][0] = 100;
+    alphabets[0].points[2][1] = 1;
+    alphabets[0].points[3][0] = 1;
+    alphabets[0].points[3][1] = 100;
+
+    printCharacter(20, 20, 0, 255, 255, 255, 'A');
     munmap(fbp, screensize);
     close(fbfd);
     while (1) {
