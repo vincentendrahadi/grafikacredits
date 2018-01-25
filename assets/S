@@ -1,28 +1,7 @@
-   XXXXXXXXXXXXXXX  
-  XXXXXXXXXXXXXXXXX 
- XXXX            XX 
- XXX              X 
- XX                 
- XX                 
- XX                 
- XX                 
- XX                 
- XX                 
- XX                 
- XXX                
- XXXX               
-  XXXXXXXXXXXXXXX   
-   XXXXXXXXXXXXXXX  
-               XXXX 
-                XXX 
-                 XX 
-                 XX 
-                 XX 
-                 XX 
-                 XX 
-                 XX 
-                 XX 
- X              XXX 
- XX            XXXX 
- XXXXXXXXXXXXXXXXX  
-  XXXXXXXXXXXXXXX   
+0 1 12 1
+0 1 0 17
+0 17 2 17
+12 1 12 17
+12 17 26 17
+24 1 26 1
+26 1 26 17
