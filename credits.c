@@ -107,7 +107,7 @@ void loadCharacters() {
             alphabets[c-'A'].points[i/2][i%2] = x;
             i++;
         }
-        alphabets[c-'A'].strokes = i/2;
+        alphabets[c-'A'].strokes = i/4;
         fclose(fp);
     }
 
@@ -179,62 +179,76 @@ void printPixel(int i, int j, int opacity, int blue, int green, int red) {
 }
 
 void printLine(int i_start, int j_start, int x0, int y0, int x1, int y1, int blue, int green, int red) {
- 	int dx, dy, p, x, y;
- 
-    dx=x1-x0;
-    dy=y1-y0;
- 
-    x=x0;
-    y=y0;
- 
-    p=2*dy-dx;
- 
-    while(x<x1)
-    {
-        printPixel(i_start + y1, j_start + x1, 0, blue, green, red);
-        if(p>=0)
-        {
-            y=y+1;
-            p=p+2*dy-2*dx;
-        }
-        else
-        {
-            p=p+2*dy;
-        }
-        x=x+1;
-    }
+
+  int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+  int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1;
+  int err = (dx>dy ? dx : -dy)/2, e2;
+
+  for(;;){
+    printPixel(i_start + y0, j_start + x0, 0, blue, green, red);
+    if (x0==x1 && y0==y1) break;
+    e2 = err;
+    if (e2 >-dx) { err -= dy; x0 += sx; }
+    if (e2 < dy) { err += dx; y0 += sy; }
+  }
+ 	// int dx, dy, p, x, y;
+  //
+  //   dx=x1-x0;
+  //   dy=y1-y0;
+  //
+  //   x=x0;
+  //   y=y0;
+  //
+  //   p=2*dy-dx;
+  //
+  //   while(x<x1)
+  //   {
+  //
+  //       if(p>=0)
+  //       {
+  //           y=y+1;
+  //           p=p+2*dy-2*dx;
+  //       }
+  //       else
+  //       {
+  //           p=p+2*dy;
+  //       }
+  //       x=x+1;
+  //   }
 }
 
 void printCharacter(int i_start, int j_start, int opacity, int blue, int green, int red, char content) {
     int i;
     if (content >= 'A' && content <= 'Z') {
     	for (i = 0; i < alphabets[content-'A'].strokes; i++) {
-    		printLine(i_start, j_start, alphabets[content - 'A'].points[i * 2][0], alphabets[content - 'A'].points[i * 2][1], alphabets[content - 'A'].points[i*2 + 1][0], 
+        printf("%d haha\n", i);
+    		printLine(i_start, j_start, alphabets[content - 'A'].points[i * 2][0], alphabets[content - 'A'].points[i * 2][1], alphabets[content - 'A'].points[i*2 + 1][0],
     			alphabets[content - 'A'].points[i*2 + 1][1], blue, green, red);
-    		printLine(i_start + 1, j_start + 1, alphabets[content - 'A'].points[i * 2][0], alphabets[content - 'A'].points[i * 2][1], alphabets[content - 'A'].points[i*2 + 1][0], 
-    			alphabets[content - 'A'].points[i*2 + 1][1], blue, green, red);
+    		// printLine(i_start + 1, j_start + 1, alphabets[content - 'A'].points[i * 2][0], alphabets[content - 'A'].points[i * 2][1], alphabets[content - 'A'].points[i*2 + 1][0],
+    		// 	alphabets[content - 'A'].points[i*2 + 1][1], blue, green, red);
+        printf("loop %d done \n", i);
     	}
     } else if (content >= '0' && content <= '9') {
     	for (i = 0; i < numbers[content - '0'].strokes; i++) {
-    		printLine(i_start, j_start, numbers[content-'0'].points[i * 2][0], numbers[content - '0'].points[i * 2][1], numbers[content - '0'].points[i*2 + 1][0], 
+    		printLine(i_start, j_start, numbers[content-'0'].points[i * 2][0], numbers[content - '0'].points[i * 2][1], numbers[content - '0'].points[i*2 + 1][0],
     			numbers[content - '0'].points[i*2 + 1][1], blue, green, red);
-    		printLine(i_start + 1, j_start + 1, numbers[content-'0'].points[i * 2][0], numbers[content - '0'].points[i * 2][1], numbers[content - '0'].points[i*2 + 1][0], 
+    		printLine(i_start + 1, j_start + 1, numbers[content-'0'].points[i * 2][0], numbers[content - '0'].points[i * 2][1], numbers[content - '0'].points[i*2 + 1][0],
     			numbers[content - '0'].points[i*2 + 1][1], blue, green, red);
     	}
     } else if (content == ' ') {
     	printPixel(i_start, j_start, 0, 0, 0, 0);
     } else if (content == ':') {
     	for (i = 0; i < symbols[0].strokes; i++) {
-    		printLine(i_start, j_start, symbols[0].points[i * 2][0], symbols[0].points[i * 2][1], symbols[0].points[i*2 + 1][0], symbols[0].points[i*2 + 1][1], 
+    		printLine(i_start, j_start, symbols[0].points[i * 2][0], symbols[0].points[i * 2][1], symbols[0].points[i*2 + 1][0], symbols[0].points[i*2 + 1][1],
     			blue, green, red);
-    		printLine(i_start + 1, j_start + 1, symbols[0].points[i * 2][0], symbols[0].points[i * 2][1], symbols[0].points[i*2 + 1][0], symbols[0].points[i*2 + 1][1], 
+    		printLine(i_start + 1, j_start + 1, symbols[0].points[i * 2][0], symbols[0].points[i * 2][1], symbols[0].points[i*2 + 1][0], symbols[0].points[i*2 + 1][1],
     			blue, green, red);
     	}
     } else if (content == '-') {
     	for (i = 0; i < symbols[1].strokes; i++) {
-    		printLine(i_start, j_start, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1], 
+    		printLine(i_start, j_start, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1],
     			blue, green, red);
-    		printLine(i_start + 1, j_start + 1, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1], 
+    		printLine(i_start + 1, j_start + 1, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1],
     			blue, green, red);
     	}
     }
@@ -283,8 +297,9 @@ int main()
     // load credit content from txt
     loadCreditContent(i_start,j_start);
 
+
     // load characters format from txt
-    // loadCharacters();
+    loadCharacters();
 
     // for(long int a = 0 ; a < 999999999; a++ ) {
     //   for (y = 0; y < 760; y++) {
@@ -300,17 +315,17 @@ int main()
     // }
 
     // debugging purposes
-    alphabets[0].strokes = 2;
-    alphabets[0].points[0][0] = 1;
-    alphabets[0].points[0][1] = 1;
-    alphabets[0].points[1][0] = 100;
-    alphabets[0].points[1][1] = 100;
-    alphabets[0].points[2][0] = 100;
-    alphabets[0].points[2][1] = 1;
-    alphabets[0].points[3][0] = 1;
-    alphabets[0].points[3][1] = 100;
+    // alphabets[0].strokes = 2;
+    // alphabets[0].points[0][0] = 1;
+    // alphabets[0].points[0][1] = 1;
+    // alphabets[0].points[1][0] = 100;
+    // alphabets[0].points[1][1] = 100;
+    // alphabets[0].points[2][0] = 100;
+    // alphabets[0].points[2][1] = 1;
+    // alphabets[0].points[3][0] = 1;
+    // alphabets[0].points[3][1] = 100;
 
-    printCharacter(20, 20, 0, 255, 255, 255, 'A');
+    printCharacter(100, 100, 0, 255, 255, 255, 'G');
     munmap(fbp, screensize);
     close(fbfd);
     while (1) {
