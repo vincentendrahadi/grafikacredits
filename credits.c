@@ -129,7 +129,7 @@ void loadCharacters() {
             numbers[c-'0'].points[i/2][i%2] = x;
             i++;
         }
-        numbers[c-'A'].strokes = i/2;
+        numbers[c-'0'].strokes = i/4;
         fclose(fp);
     }
 
@@ -150,7 +150,7 @@ void loadCharacters() {
         symbols[0].points[i/2][i%2] = x;
         i++;
     }
-    symbols[0].strokes = i/2;
+    symbols[0].strokes = i/4;
     fclose(fp);
 
     i = 0;
@@ -160,7 +160,7 @@ void loadCharacters() {
         symbols[1].points[i/2][i%2] = x;
         i++;
     }
-    symbols[1].strokes = i/2;
+    symbols[1].strokes = i/4;
     fclose(fp);
 }
 
@@ -184,7 +184,7 @@ void printLine(int i_start, int j_start, int x0, int y0, int x1, int y1, int blu
   int err = (dx>dy ? dx : -dy)/2, e2;
 
   for(;;){
-    printPixel(i_start + y0, j_start + x0, 0, blue, green, red);
+    printPixel(i_start + x0, j_start + y0, 0, blue, green, red);
     if (x0==x1 && y0==y1) break;
     e2 = err;
     if (e2 >-dx) { err -= dy; x0 += sx; }
@@ -271,33 +271,21 @@ int main()
     loadCreditContent(i_start,j_start);
 
     // load characters format from txt
-    // loadCharacters();
+    loadCharacters();
 
-    // for(long int a = 0 ; a < 999999999; a++ ) {
-    //   for (y = 0; y < 760; y++) {
-    //       for (x = 0; x < 1366; x++) {
-    //           printPixel(y, x, 0, 0, 0, 0);
-    //       }
-    //   }
+    for(long int a = 0 ; a < 999999999; a++ ) {
+      for (y = 0; y < 760; y++) {
+          for (x = 0; x < 1366; x++) {
+              printPixel(y, x, 0, 0, 0, 0);
+          }
+      }
 
-    //   for(int i = 0; i < 232; i++) {
-    //       printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
-    //   }
-    //   usleep(1500);
-    // }
+      for(int i = 0; i < 232; i++) {
+          printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
+      }
+      usleep(1500);
+    }
 
-    // debugging purposes
-    alphabets[0].strokes = 2;
-    alphabets[0].points[0][0] = 1;
-    alphabets[0].points[0][1] = 1;
-    alphabets[0].points[1][0] = 100;
-    alphabets[0].points[1][1] = 100;
-    alphabets[0].points[2][0] = 100;
-    alphabets[0].points[2][1] = 1;
-    alphabets[0].points[3][0] = 1;
-    alphabets[0].points[3][1] = 100;
-
-    printCharacter(20, 20, 0, 255, 255, 255, 'A');
     munmap(fbp, screensize);
     close(fbfd);
     while (1) {
