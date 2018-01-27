@@ -28,6 +28,7 @@ struct fb_fix_screeninfo finfo;
 CharacterData alphabets[26];
 CharacterData numbers[10];
 CharacterData symbols[3];
+CharacterData plane;
 Character credit[255];
 pthread_t tid[2];
 int laserCounter = 0;
@@ -167,6 +168,16 @@ void loadCharacters() {
     }
     symbols[1].strokes = i/4;
     fclose(fp);
+
+    i = 0;
+    filename[7] = 'A';
+    fp = fopen(filename, "r");
+    while (fscanf(fp, " %hd ", &x) != EOF) {
+        plane.points[i/2][i%2] = x;
+        i++;
+    }
+    plane.strokes = i/4;
+    fclose(fp);
 }
 
 void printPixel(int i, int j, int opacity, int blue, int green, int red) {
@@ -253,11 +264,30 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
     		printLine(i_start + 1, j_start + 1, symbols[1].points[i * 2][0], symbols[1].points[i * 2][1], symbols[1].points[i*2 + 1][0], symbols[1].points[i*2 + 1][1],
     			blue, green, red);
     	}
+    } else if (content == '<') {
+      for (i = 0; i < plane.strokes; i++) {
+        printLine(i_start, j_start, plane.points[i * 2][0], plane.points[i * 2][1], plane.points[i*2 + 1][0],
+          plane.points[i*2 + 1][1], blue, green, red);
+        printLine(i_start+1, j_start+1, plane.points[i * 2][0], plane.points[i * 2][1], plane.points[i*2 + 1][0],
+          plane.points[i*2 + 1][1], blue, green, red);
+      }
     }
 }
 
-void* readInput(void *arg)
-{
+// void* printPlane(void *arg) {
+//   for (long int a = 0; a < 99999999; a++) {
+//     for (y = 0; y < 50; y++) {
+//         for (x = 0; x < 1366; x++) {
+//             printPixel(y, x, 0, 0, 0, 0);
+//         }
+//     }
+//     printCharacter(50, 1400-a, 0, 255, 255, 255, '<');
+//     sleep(2);
+//   }
+//
+// }
+
+void* readInput(void *arg) {
     unsigned long i = 0;
     char c;
 
@@ -271,8 +301,7 @@ void* readInput(void *arg)
     return NULL;
 }
 
-int main()
-{
+int main() {
     int fbfd = 0;
     // struct fb_var_screeninfo vinfo;
     // struct fb_fix_screeninfo finfo;
@@ -328,7 +357,7 @@ int main()
               printPixel(y, x, 0, 0, 0, 0);
           }
       }
-
+      printCharacter(50, 1400-a, 0, 255, 255, 255, '<');
       for(int i = 0; i < 232; i++) {
           printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
       }
@@ -347,7 +376,7 @@ int main()
         printLaser(0, 680, 800, 0, 0, -680, 255, 255, 255, laserC);
       }
 
-      usleep(1500);
+      usleep(3000);
     }
 
     munmap(fbp, screensize);
