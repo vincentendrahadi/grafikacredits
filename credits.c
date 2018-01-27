@@ -8,6 +8,7 @@
 #include <sys/ioctl.h>
 #include <pthread.h>
 
+#define laserRange 200
 
 typedef struct Characters {
     char content;
@@ -204,7 +205,7 @@ void printLaser(int i_start, int j_start, int x0, int y0, int x1, int y1, int bl
   int count = 0;
   for(;;){
     if (count > counter) break;
-    if (count >= counter - 200) {
+    if (count >= counter - laserRange) {
         if (i < 5)
             printPixel(i_start + x0, j_start + y0, 0, blue, green, red);
         else if (i == 10) {
@@ -261,8 +262,8 @@ void* readInput(void *arg)
     char c;
 
     for(i=0; i<(0xFFFFFFFF);i++) {
-        // c = getchar();
-        if (scanf("%c", &c)) {
+        char s[256];
+        if (scanf("%s", s)) {
             laserCounter++;
         }
     }
