@@ -6,6 +6,8 @@
 #include <linux/fb.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
+#include <pthread.h>
+
 
 typedef struct Characters {
     char content;
@@ -26,6 +28,8 @@ CharacterData alphabets[26];
 CharacterData numbers[10];
 CharacterData symbols[3];
 Character credit[255];
+pthread_t tid[2];
+int laserCounter = 0;
 
 void loadCreditContent(int i_start, int j_start) {
     FILE *fp;
@@ -192,6 +196,30 @@ void printLine(int i_start, int j_start, int x0, int y0, int x1, int y1, int blu
   }
 }
 
+void printLaser(int i_start, int j_start, int x0, int y0, int x1, int y1, int blue, int green, int red, int counter) {
+  int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
+  int dy = abs(y1-y0), sy = y0<y1 ? 1 : -1;
+  int err = (dx>dy ? dx : -dy)/2, e2;
+  int i = 0;
+  int count = 0;
+  for(;;){
+    if (count > counter) break;
+    if (count >= counter - 200) {
+        if (i < 5)
+            printPixel(i_start + x0, j_start + y0, 0, blue, green, red);
+        else if (i == 10) {
+            i = 0;
+        }
+        ++i;
+    }
+    ++count;
+    if (x0==x1 && y0==y1) break;
+    e2 = err;
+    if (e2 >-dx) { err -= dy; x0 += sx; }
+    if (e2 < dy) { err += dx; y0 += sy; }
+  }
+}
+
 void printCharacter(int i_start, int j_start, int opacity, int blue, int green, int red, char content) {
     int i;
     if (content >= 'A' && content <= 'Z') {
@@ -225,6 +253,21 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
     			blue, green, red);
     	}
     }
+}
+
+void* readInput(void *arg)
+{
+    unsigned long i = 0;
+    char c;
+
+    for(i=0; i<(0xFFFFFFFF);i++) {
+        // c = getchar();
+        if (scanf("%c", &c)) {
+            laserCounter++;
+        }
+    }
+
+    return NULL;
 }
 
 int main()
@@ -273,6 +316,11 @@ int main()
     // load characters format from txt
     loadCharacters();
 
+    int laserA = 0, laserB = 0, laserC = 0;
+
+    // another thread to read input
+    pthread_create(&(tid[0]), NULL, &readInput, NULL);
+
     for(long int a = 0 ; a < 999999999; a++ ) {
       for (y = 0; y < 760; y++) {
           for (x = 0; x < 1366; x++) {
@@ -283,6 +331,21 @@ int main()
       for(int i = 0; i < 232; i++) {
           printCharacter(credit[i].i-a, credit[i].j, 0, credit[i].blue, credit[i].green, credit[i].red, credit[i].content);
       }
+
+      // printing laser
+      if (laserCounter > 0) {
+        laserA++;
+        printLaser(0, 680, 800, 0, 0, 0, 255, 255, 255, laserA);
+      }
+      if (laserCounter > 1) {
+        laserB++;
+        printLaser(0, 680, 800, 0, 0, 680, 255, 255, 255, laserB);
+      }
+      if (laserCounter > 2) {
+        laserC++;
+        printLaser(0, 680, 800, 0, 0, -680, 255, 255, 255, laserC);
+      }
+
       usleep(1500);
     }
 
