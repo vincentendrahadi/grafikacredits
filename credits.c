@@ -170,7 +170,7 @@ void loadCharacters() {
     fclose(fp);
 
     i = 0;
-    filename[7] = 'A';
+    filename[7] = '<';
     fp = fopen(filename, "r");
     while (fscanf(fp, " %hd ", &x) != EOF) {
         plane.points[i/2][i%2] = x;
@@ -273,19 +273,6 @@ void printCharacter(int i_start, int j_start, int opacity, int blue, int green, 
       }
     }
 }
-
-// void* printPlane(void *arg) {
-//   for (long int a = 0; a < 99999999; a++) {
-//     for (y = 0; y < 50; y++) {
-//         for (x = 0; x < 1366; x++) {
-//             printPixel(y, x, 0, 0, 0, 0);
-//         }
-//     }
-//     printCharacter(50, 1400-a, 0, 255, 255, 255, '<');
-//     sleep(2);
-//   }
-//
-// }
 
 void* readInput(void *arg) {
     unsigned long i = 0;
