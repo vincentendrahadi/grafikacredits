@@ -22,12 +22,12 @@ typedef struct Pixel {
 char *fbp = 0;
 struct fb_var_screeninfo vinfo;
 struct fb_fix_screeninfo finfo;
-Pixel toBeDrawn[768][1366];
+Pixel toBeDrawn[768][1360];
 Character smallAlphabets[26], bigAlphabets[26];
 
 void printPixel(int i, int j, int opacity, int blue, int green, int red) {
     int location;
-    if (j < 0 || j >= 1366 || i < 0 || i >= 760) {
+    if (j < 0 || j >= 1360 || i < 0 || i >= 760) {
         // out of bound, no need to print
     } else {
         location = (j+vinfo.xoffset) * (vinfo.bits_per_pixel/8) +
@@ -109,7 +109,7 @@ void loadCharacter(char character) {
 }
 
 void floodFill(int i_start, int j_start, int i, int j, int blue, int green, int red) {
-    if (i >= 0 && j >= 0 && i < 760 && j < 1366) {
+    if (i >= 0 && j >= 0 && i < 760 && j < 1360) {
         if (toBeDrawn[i_start + i][j_start + j].blue != blue && toBeDrawn[i][j].green != green && toBeDrawn[i][j].red != red) {
             toBeDrawn[i_start + i][j_start + j].blue = blue;
             toBeDrawn[i_start + i][j_start + j].green = green;
@@ -195,23 +195,31 @@ int main() {
 
     // Initiate toBeDrawn
     for (int i = 0; i < 760; ++i) {
-    	for (int j = 0; j < 1366; ++j) {
+    	for (int j = 0; j < 1360; ++j) {
     		toBeDrawn[i][j].red = 0;
             toBeDrawn[i][j].green = 0;
             toBeDrawn[i][j].blue = 0;
     	}
     }
 
-    printf("%hd\n", toBeDrawn[760][1366].blue);
+    printf("%hd\n", toBeDrawn[760][1360].blue);
 
     // Load characters
     loadCharacter('M');
+    loadCharacter('E');
+    loadCharacter('g');
+    loadCharacter('o');
+    loadCharacter('J');
 
     // Print characters
     printCharacter('M', 100, 100, 255, 255, 255);
+    printCharacter('E', 100, 185, 255, 255, 255);
+    printCharacter('g', 130, 270, 255, 255, 255);
+    printCharacter('o', 130, 325, 255, 255, 255);
+    printCharacter('J', 100, 380, 255, 255, 255);
 
     for (int i = 0; i < 760; ++i) {
-        for (int j = 0; j < 1366; ++j) {
+        for (int j = 0; j < 1360; ++j) {
             printPixel(i, j, 255, toBeDrawn[i][j].blue, toBeDrawn[i][j].green, toBeDrawn[i][j].red);
         }
     }
