@@ -139,7 +139,7 @@ void printCharacter(char character, int i_start, int j_start, int blue, int gree
             }
             floodFill(i_start, j_start, smallAlphabets[character - 'a'].centerOfGravity[i][0], smallAlphabets[character - 'a'].centerOfGravity[i][1], blue, green, red);
         }
-    } else if (character >= 'A' && character >= 'Z') {
+    } else if (character >= 'A' && character <= 'Z') {
         for (int i = 0; i < bigAlphabets[character - 'A'].triangleCount; ++i) {
             for (int j = 0; j < 3; ++j) {
                 short x1, y1;
@@ -205,10 +205,10 @@ int main() {
     printf("%hd\n", toBeDrawn[760][1366].blue);
 
     // Load characters
-    loadCharacter('g');
+    loadCharacter('M');
 
     // Print characters
-    printCharacter('g', 100, 100, 255, 255, 255);
+    printCharacter('M', 100, 100, 255, 255, 255);
 
     for (int i = 0; i < 760; ++i) {
         for (int j = 0; j < 1366; ++j) {
